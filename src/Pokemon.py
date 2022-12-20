@@ -28,6 +28,11 @@ class PokemonRenderable:
         else:
             self.facingForward = True
 
+class Move:
+    def __init__(self, name, damage):
+        self.name = name
+        self.damage = damage
+
 
 class Pokemon: # TODO add some randomness
     def __init__(self, name):
@@ -35,11 +40,11 @@ class Pokemon: # TODO add some randomness
         self.hp = 100
         self.maxHp = 100
 
-        self.moves = { 
-            "Punch": 10, 
-            "Scratch": 5, 
-            "Kick": 7.5 
-        }
+        self.moves = [ 
+            Move("Punch", 10), 
+            Move("Scratch", 5), 
+            Move("Kick", 7.5)
+        ]
 
         self.renderable = PokemonRenderable("assets/images/" + name + "_Front.png", "assets/images/" + name + "_Back.png")
 

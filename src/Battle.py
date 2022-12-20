@@ -42,12 +42,11 @@ def drawMoveSelection(screen, size, activePokemon):
     pygame.draw.rect(screen, boxColour, (2, size.y / 4 * 3 + 2 + 1, size.x - 4, size.y / 4 - 4))
 
     i = 0
-    for key in activePokemon.moves:
-        moveName = font.render(key, True, fontColour)
-        x = margin
+    for move in activePokemon.moves:
+        moveName = font.render(move.name, True, fontColour)
+        x = margin + size.x / 3 * 2
         if (i > 1):
             x += 50
-        print(x)
         
         y = (size.y / 4) * 3 + margin
         if (i % 2 == 1):
@@ -55,6 +54,17 @@ def drawMoveSelection(screen, size, activePokemon):
 
         screen.blit(moveName, (x, y))
         i += 1
+
+def drawMessage(screen, size, message):
+    fontColour = (0, 0, 0)
+    if (len(message) < 50):
+        messageText = font.render(message, True, fontColour)
+        screen.blit(messageText, (margin, (size.y / 4) * 3 + margin))
+    else:
+        messageText1 = font.render(message[0:50], True, fontColour)
+        screen.blit(messageText1, (margin, (size.y / 4) * 3 + margin))
+        messageText2 = font.render(message[50:], True, fontColour)
+        screen.blit(messageText2, (margin, (size.y / 4) * 3 + margin + 20))
 
 def battleLoop(screen, size, lPokemon, rPokemon):
     leftPokeSpot = Vector2(size.x / 3, size.y / 3 * 2)
@@ -81,5 +91,7 @@ def battleLoop(screen, size, lPokemon, rPokemon):
         drawStatusBoxs(screen, size, rPokemon, Vector2(size.x / 2, size.y / 2))
 
         drawMoveSelection(screen, size, activePokemon)
+
+        drawMessage(screen, size, "Squirtle has been scratcd and has now fainted. Lorem Ipsum fake text greek is weird klashjdfajsdf;klajdf;l")
 
         pygame.display.flip()

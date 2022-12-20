@@ -1,23 +1,26 @@
 import sys, pygame
 from pygame.math import Vector2
 from Pokemon import Pokemon
+from Battle import battleLoop
 
 pygame.init()
+pygame.font.init()
 
-# Game Setup
-size = width, height = 450, 250
+size = Vector2(450, 250)
 
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption("Pokemon Battle")
 
-squirtle = Pokemon("assets/images/Squirtle_Front.png", "assets/images/Squirtle_Back.png")
+squirtle = Pokemon("Squirtle")
 squirtle.renderable.position = Vector2(100, 125)
 
-bulbasaur = Pokemon("assets/images/Bulbasaur_Front.png", "assets/images/Bulbasaur_Back.png")
+bulbasaur = Pokemon("Bulbasaur")
 bulbasaur.renderable.position = Vector2(200, 125)
 
-charmander = Pokemon("assets/images/Charmander_Front.png", "assets/images/Charmander_Back.png")
+charmander = Pokemon("Charmander")
 charmander.renderable.position = Vector2(300, 125)
+
+battleLoop(screen, size, squirtle, bulbasaur)
 
 # Game loop
 while True:

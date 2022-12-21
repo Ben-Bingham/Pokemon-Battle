@@ -43,7 +43,6 @@ def drawMoveSelection(screen, size, activePokemon):
 
     i = 0
     for move in activePokemon.moves:
-        moveName = font.render(move.name, True, fontColour)
         x = margin + size.x / 3 * 2
         if (i > 1):
             x += 50
@@ -52,7 +51,13 @@ def drawMoveSelection(screen, size, activePokemon):
         if (i % 2 == 1):
             y = (size.y / 4) * 3 + margin + 20
 
+        if (move.selected):
+            pygame.draw.rect(screen, borderColour, (x - 1, y - 1, 7 * len(move.name) + 2, 12))
+            pygame.draw.rect(screen, boxColour, (x, y, 7 * len(move.name), 10))
+
+        moveName = font.render(move.name, True, fontColour)
         screen.blit(moveName, (x, y))
+
         i += 1
 
 def drawMessage(screen, size, message):
@@ -66,6 +71,38 @@ def drawMessage(screen, size, message):
         messageText2 = font.render(message[50:], True, fontColour)
         screen.blit(messageText2, (margin, (size.y / 4) * 3 + margin + 20))
 
+def lerp(input1, input2, dt):
+    Output = (1 - dt) * input1 + dt * input2
+    return Output
+
+def playMove(move, attacker, target):
+    target.getAttacked(move)
+    progress = 0
+    time = 0
+    oldTime = 0
+    originalPos = attacker.renderable.position
+
+    while True:
+        deltaTime = time - oldTime
+        if (move.name == "Kick"):
+            attacker.renderable.position.x += lerp(originalPos.x, target.renderable.position.x, deltaTime)
+            attacker.renderable.position.y += lerp(originalPos.y, target.renderable.position.y, deltaTime)
+            print("X:" + str(attacker.renderable.position.x) + "Y:" + str(attacker.renderable.position.y))
+            if (attacker.renderable.position.x == target.renderable.position.x and attacker.renderable.position.y == target.renderable.position.y):
+                break # TODO does not work
+        
+
+        pygame.display.flip()
+
+        progress += 1
+        time += 1 / 60
+        if (progress == 60):
+            progress = 0
+
+        oldTime = time
+
+
+
 def battleLoop(screen, size, lPokemon, rPokemon):
     leftPokeSpot = Vector2(size.x / 3, size.y / 3 * 2)
     rightPokeSpot = Vector2(size.x / 3 * 2, size.y / 3)
@@ -77,11 +114,35 @@ def battleLoop(screen, size, lPokemon, rPokemon):
     rPokemon.renderable.facingForward = True
 
     activePokemon = lPokemon
+    inactivePokemon = rPokemon
 
+    selectedMove = 0
+    moveToPlay = -1
     while True:
         for event in pygame.event.get():
-            if event.type == pygame.QUIT: sys.exit()
-        
+            if event.type == pygame.QUIT: 
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    selectedMove -= 1
+                if event.key == pygame.K_DOWN:
+                    selectedMove += 1
+                if event.key == pygame.K_RETURN:
+                    moveToPlay = selectedMove
+
+        if (selectedMove >= len(activePokemon.moves)):
+            selectedMove = 0
+        elif (selectedMove == -1):
+            selectedMove = len(activePokemon.moves) - 1
+
+        i = 0
+        for move in activePokemon.moves:
+            if (i == selectedMove):
+                move.selected = True
+            else:
+                move.selected = False
+            i += 1
+
         screen.fill((0, 255, 0))
 
         lPokemon.renderable.draw(screen)
@@ -92,6 +153,11 @@ def battleLoop(screen, size, lPokemon, rPokemon):
 
         drawMoveSelection(screen, size, activePokemon)
 
-        drawMessage(screen, size, "Squirtle has been scratcd and has now fainted. Lorem Ipsum fake text greek is weird klashjdfajsdf;klajdf;l")
+        drawMessage(screen, size, "Squirtle has been scratcd and has now fainted.")
+
+        if (moveToPlay != -1):
+            playMove(activePokemon.moves[moveToPlay], activePokemon, inactivePokemon)
+            moveToPlay = -1
+
 
         pygame.display.flip()

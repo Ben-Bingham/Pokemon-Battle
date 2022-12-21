@@ -32,7 +32,7 @@ class Move:
     def __init__(self, name, damage):
         self.name = name
         self.damage = damage
-
+        self.selected = False
 
 class Pokemon: # TODO add some randomness
     def __init__(self, name):
@@ -48,5 +48,5 @@ class Pokemon: # TODO add some randomness
 
         self.renderable = PokemonRenderable("assets/images/" + name + "_Front.png", "assets/images/" + name + "_Back.png")
 
-    def getAttacked(self, moves, key):
-        self.hp -= moves[key]
+    def getAttacked(self, move):
+        self.hp -= move.damage

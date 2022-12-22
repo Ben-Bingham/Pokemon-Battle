@@ -26,12 +26,12 @@ def drawStatusBoxs(screen, size, pokemon, pos):
     else:
         colour = (0, 255, 0)
         percentageFull = pokemon.hp / pokemon.maxHp
-        if (percentageFull < 0.5):
+        if (percentageFull < 0.5 and percentageFull > 0.25):
             colour = (255, 127, 0)
-        elif (percentageFull < 0.25):
+        elif (percentageFull <= 0.25):
             colour = (255, 0, 0)
 
-        pygame.draw.rect(screen, colour, (pos.x + margin * 2 + 2 + 20, pos.y + margin * 4 + 2, ((size.x / 3) / 2 - 4) * percentageFull, 10 - 4), border_top_left_radius=5, border_bottom_left_radius=5)
+        pygame.draw.rect(screen, colour, (pos.x + margin * 2 + 2 + 20, pos.y + margin * 4 + 2, max(((size.x / 3) / 2 - 4) * percentageFull, 0), 10 - 4), border_top_left_radius=5, border_bottom_left_radius=5)
 
 def drawMoveSelection(screen, size, activePokemon):
     boxColour = (235, 244, 245)
@@ -88,7 +88,7 @@ def playMove(screen, move, attacker, target):
     progress = 0
     originalPos = attacker.renderable.position.copy()
 
-    epsilon = 0.3
+    epsilon = 20
 
     movement1 = False
     movement2 = False
@@ -130,11 +130,14 @@ def playMove(screen, move, attacker, target):
                 break
         elif (move.name == "Punch"):
             if (not movement1):
-                attacker.renderable.position.x = lerp(originalPos.x, target.renderable.position.x, progress/(60))
-                attacker.renderable.position.y = lerp(originalPos.y, target.renderable.position.y, progress/(60))
+                # attacker.renderable.position.x = lerp(originalPos.x, target.renderable.position.x, progress/(60))
+                # attacker.renderable.position.y = lerp(originalPos.y, target.renderable.position.y, progress/(60))
+                
+                attacker.renderable.front = pygame.transform.scale_by(attacker.renderable.front, 1.5)
+                attacker.renderable.back = pygame.transform.scale_by(attacker.renderable.back, 1.5)
 
-                attacker.renderable.frontRect = attacker.renderable.frontRect.inflate(1, 1)
-                attacker.renderable.backRect = attacker.renderable.backRect.inflate(1, 1)
+                attacker.renderable.position = originalPos
+                print(attacker.renderable.position)
 
                 if (epsilonEqual(progress, 60, epsilon)):
                     movement1 = True

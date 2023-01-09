@@ -1,10 +1,12 @@
-import pygame, sys
+import pygame, sys, random
 from pygame.math import Vector2
 
 pygame.font.init()
 
 font = pygame.font.SysFont("Aerial", 15)
 margin = 10
+
+lastMove = -1
 
 def drawStatusBoxs(screen, size, pokemon, pos):
     boxColour = (235, 244, 245)
@@ -88,7 +90,7 @@ def playMove(screen, move, attacker, target):
     progress = 0
     originalPos = attacker.renderable.position.copy()
 
-    epsilon = 20
+    epsilon = 0.1
 
     movement1 = False
     movement2 = False
@@ -130,24 +132,68 @@ def playMove(screen, move, attacker, target):
                 break
         elif (move.name == "Punch"):
             if (not movement1):
-                # attacker.renderable.position.x = lerp(originalPos.x, target.renderable.position.x, progress/(60))
-                # attacker.renderable.position.y = lerp(originalPos.y, target.renderable.position.y, progress/(60))
-                
-                attacker.renderable.front = pygame.transform.scale_by(attacker.renderable.front, 1.5)
-                attacker.renderable.back = pygame.transform.scale_by(attacker.renderable.back, 1.5)
-
-                attacker.renderable.position = originalPos
-                print(attacker.renderable.position)
+                attacker.renderable.position.x = lerp(originalPos.x, target.renderable.position.x + 100, progress/(60))
+                attacker.renderable.position.y = lerp(originalPos.y, target.renderable.position.y - 100, progress/(60))
 
                 if (epsilonEqual(progress, 60, epsilon)):
                     movement1 = True
                     progress += epsilon
+            elif (not movement2):
+                attacker.renderable.position.x = lerp(target.renderable.position.x + 100, target.renderable.position.x - 100, progress/(60))
+                attacker.renderable.position.y = lerp(target.renderable.position.y - 100, target.renderable.position.y + 100, progress/(60))
 
-            if (movement1):
-                #attacker.renderable.frontRect = attacker.renderable.frontRect.inflate(-30, -30)
-                #attacker.renderable.backRect = attacker.renderable.backRect.inflate(-30, -30)
+                if (epsilonEqual(progress, 60, epsilon)):
+                    movement2 = True
+                    progress += epsilon
+            elif (not movement3):
+                attacker.renderable.position.x = lerp(target.renderable.position.x - 100, target.renderable.position.x + 100, progress/(60))
+                attacker.renderable.position.y = lerp(target.renderable.position.y + 100, target.renderable.position.y - 100, progress/(60))
+
+                if (epsilonEqual(progress, 60, epsilon)):
+                    movement3 = True
+                    progress += epsilon
+            elif (not movement4):
+                attacker.renderable.position.x = lerp(target.renderable.position.x + 100, originalPos.x, progress/(60))
+                attacker.renderable.position.y = lerp(target.renderable.position.y - 100, originalPos.y, progress/(60))
+
+                if (epsilonEqual(progress, 60, epsilon)):
+                    movement4 = True
+                    progress += epsilon
+                
+            if (movement1 and movement2 and movement3 and movement4):
                 break
-            
+        elif (move.name == "Scratch"):
+            if (not movement1):
+                attacker.renderable.position.x = lerp(originalPos.x, target.renderable.position.x + 100, progress/(60))
+                attacker.renderable.position.y = lerp(originalPos.y, target.renderable.position.y + 100, progress/(60))
+
+                if (epsilonEqual(progress, 60, epsilon)):
+                    movement1 = True
+                    progress += epsilon
+            elif (not movement2):
+                attacker.renderable.position.x = lerp(target.renderable.position.x + 100, target.renderable.position.x - 100, progress/(60))
+                attacker.renderable.position.y = lerp(target.renderable.position.y + 100, target.renderable.position.y - 100, progress/(60))
+
+                if (epsilonEqual(progress, 60, epsilon)):
+                    movement2 = True
+                    progress += epsilon
+            elif (not movement3):
+                attacker.renderable.position.x = lerp(target.renderable.position.x - 100, target.renderable.position.x + 100, progress/(60))
+                attacker.renderable.position.y = lerp(target.renderable.position.y - 100, target.renderable.position.y + 100, progress/(60))
+
+                if (epsilonEqual(progress, 60, epsilon)):
+                    movement3 = True
+                    progress += epsilon
+            elif (not movement4):
+                attacker.renderable.position.x = lerp(target.renderable.position.x + 100, originalPos.x, progress/(60))
+                attacker.renderable.position.y = lerp(target.renderable.position.y + 100, originalPos.y, progress/(60))
+
+                if (epsilonEqual(progress, 60, epsilon)):
+                    movement4 = True
+                    progress += epsilon
+                
+            if (movement1 and movement2 and movement3 and movement4):
+                break
         screen.fill((0, 255, 0))
 
         attacker.renderable.draw(screen)
@@ -174,17 +220,24 @@ def battleLoop(screen, size, lPokemon, rPokemon):
 
     selectedMove = 0
     moveToPlay = -1
+    battleDone = False
+    battleDoneCountup = 0
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT: 
                 sys.exit()
-            if event.type == pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN and not battleDone:
                 if event.key == pygame.K_UP or event.key == pygame.K_RIGHT:
                     selectedMove -= 1
                 if event.key == pygame.K_DOWN or event.key == pygame.K_LEFT:
                     selectedMove += 1
                 if event.key == pygame.K_RETURN:
                     moveToPlay = selectedMove
+
+        if (battleDone):
+            battleDoneCountup += 1
+        if (battleDoneCountup >= 15000):
+            return inactivePokemon
 
         if (selectedMove >= len(activePokemon.moves)):
             selectedMove = 0
@@ -209,11 +262,32 @@ def battleLoop(screen, size, lPokemon, rPokemon):
 
         drawMoveSelection(screen, size, activePokemon)
 
-        drawMessage(screen, size, "Squirtle has been scratcd and has now fainted.")
+        if (activePokemon == rPokemon):
+            playMove(screen, activePokemon.moves[random.randint(0, 2)], activePokemon, inactivePokemon)
+
+            temp = inactivePokemon
+            inactivePokemon = activePokemon
+            activePokemon = temp
+
+        global lastMove
 
         if (moveToPlay != -1):
             playMove(screen, activePokemon.moves[moveToPlay], activePokemon, inactivePokemon)
+            lastMove = moveToPlay
             moveToPlay = -1
 
+            temp = inactivePokemon
+            inactivePokemon = activePokemon
+            activePokemon = temp
+
+        ending = ""
+        if (activePokemon.hp <= 0):
+            ending = " and they fainted, " + activePokemon.name + " loses!"
+            battleDone = True
+        else:
+            ending = "."
+
+        if (lastMove >= 0):
+            drawMessage(screen, size, str(activePokemon.name) + " has been " + activePokemon.moves[lastMove].name + "ed" + str(ending))
 
         pygame.display.flip()

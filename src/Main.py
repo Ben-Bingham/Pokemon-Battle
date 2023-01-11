@@ -6,6 +6,8 @@ from Battle import battleLoop
 pygame.init()
 pygame.font.init()
 
+font = pygame.font.SysFont("Aerial", 20)
+
 size = Vector2(450, 250)
 
 screen = pygame.display.set_mode(size)
@@ -63,6 +65,9 @@ while True:
     pygame.draw.rect(screen, (0, 0, 0), (selectedCords.x - 30, selectedCords.y - 30, 60, 60), border_radius=3)
     pygame.draw.rect(screen, (3, 190, 252), (selectedCords.x - 30 + 1, selectedCords.y - 30 + 1, 58, 58), border_radius=3)
 
+    text = font.render("Please Select a Pokemon", True, (0, 0, 0))
+    screen.blit(text, (50, 50))
+
     squirtle.renderable.draw(screen)
     bulbasaur.renderable.draw(screen)
     charmander.renderable.draw(screen)
@@ -105,6 +110,9 @@ while True:
 
     # Sky
     screen.fill((3, 190, 252))
+
+    text = font.render(winner.name + " Wins!", True, (0, 0, 0))
+    screen.blit(text, (50, 50))
 
     winner.renderable.draw(screen)
 

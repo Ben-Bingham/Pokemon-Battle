@@ -6,8 +6,6 @@ pygame.font.init()
 font = pygame.font.SysFont("Aerial", 15)
 margin = 10
 
-lastMove = -1
-
 def drawStatusBoxs(screen, size, pokemon, pos):
     boxColour = (235, 244, 245)
     fontColour = (0, 0, 0)
@@ -222,6 +220,7 @@ def battleLoop(screen, size, lPokemon, rPokemon):
     moveToPlay = -1
     battleDone = False
     battleDoneCountup = 0
+    lastMove= -1
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT: 
@@ -236,8 +235,8 @@ def battleLoop(screen, size, lPokemon, rPokemon):
 
         if (battleDone):
             battleDoneCountup += 1
-        if (battleDoneCountup >= 15000):
-            return inactivePokemon
+        if (battleDoneCountup >= 60):
+            return activePokemon
 
         if (selectedMove >= len(activePokemon.moves)):
             selectedMove = 0
@@ -262,24 +261,6 @@ def battleLoop(screen, size, lPokemon, rPokemon):
 
         drawMoveSelection(screen, size, activePokemon)
 
-        if (activePokemon == rPokemon):
-            playMove(screen, activePokemon.moves[random.randint(0, 2)], activePokemon, inactivePokemon)
-
-            temp = inactivePokemon
-            inactivePokemon = activePokemon
-            activePokemon = temp
-
-        global lastMove
-
-        if (moveToPlay != -1):
-            playMove(screen, activePokemon.moves[moveToPlay], activePokemon, inactivePokemon)
-            lastMove = moveToPlay
-            moveToPlay = -1
-
-            temp = inactivePokemon
-            inactivePokemon = activePokemon
-            activePokemon = temp
-
         ending = ""
         if (activePokemon.hp <= 0):
             ending = " and they fainted, " + activePokemon.name + " loses!"
@@ -288,6 +269,21 @@ def battleLoop(screen, size, lPokemon, rPokemon):
             ending = "."
 
         if (lastMove >= 0):
-            drawMessage(screen, size, str(activePokemon.name) + " has been " + activePokemon.moves[lastMove].name + "ed" + str(ending))
+            drawMessage(screen, size, activePokemon.name + " has been " + inactivePokemon.moves[lastMove].name + "ed" + str(ending))
 
+        if (activePokemon == rPokemon):
+            playMove(screen, activePokemon.moves[random.randint(0, 2)], activePokemon, inactivePokemon)
+
+            temp = inactivePokemon
+            inactivePokemon = activePokemon
+            activePokemon = temp
+        elif (moveToPlay != -1):
+            playMove(screen, activePokemon.moves[moveToPlay], activePokemon, inactivePokemon)
+            lastMove = moveToPlay
+            moveToPlay = -1
+
+            temp = inactivePokemon
+            inactivePokemon = activePokemon
+            activePokemon = temp
+            
         pygame.display.flip()
